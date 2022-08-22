@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="formulario">
+        <label for="nombre">Nombre:</label>
+        <input type="text" name="nombre" id="nombre">
+        <br>
+        <label for="ci">CI:</label>
+        <input type="number" name="ci" id="ci">
+        <br>
+        <label for="fecha_nac">Fecha de Nacimiento:</label>
+        <input type="date" name="fecha_nac" id="fecha_nac">
+        <br>
+        <label for="email">E-Mail:</label>
+        <input type="email" name="email" id="email">
+        <br>
+        <label for="contrasenia">Contraseña:</label>
+        <input type="password" name="contrasenia" id="contrasenia">
+        <br>
+
+
+    </form>
+    <button id="btn_enviar" onclick="enviarFormulario()">Enviar</button>
+</body>
+<script>
+    let formulario = document.getElementById('formulario');
+    let sal = "";
+    /**
+     *Toma los datos del formulario y los envía
+     */
+    async function enviarFormulario() {
+        let modo="";
+        try {
+            const formDatos = new FormData(formulario);
+            console.log(sal.length);
+            
+            if (sal.length<1) {
+                modo = "soloci";
+            } 
+            console.log(modo);
+
+            const respuesta = await prepararDatos(formDatos,modo);
+            console.log("llegó");
+            console.log(respuesta);
+
+            //Si la respuesta contiene una sal, hasheamos la contraseña
+            //y enviamos todos los datos
+            if (respuesta.Respuesta.mensaje=="sal") {
+                console.log("hay sal");
+                const sal = respuesta.Respuesta.datos;
+                console.log("Sal:"+sal);
+
+                
+            } else {
+                console.log(respuesta.Respuesta.estado);
+                console.log(respuesta.Respuesta.mensaje);
+            }
+
+        } catch (error) {
+            console.error(error);
+        } 
+    }
+
+    /**
+     * Encripta un dato
+     */
+    async function sha256(dato) {
+        // encode as UTF-8
+        const msgBuffer = new TextEncoder().encode(dato);                    
+
+        // hash the message
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+        // convert ArrayBuffer to Array
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+        // convert bytes to hex string                  
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    /**
+     * Prepara los datos a ser enviados
+     * */
+    async function prepararDatos(datos, modo) {
+
+        const datosEnBruto = Object.fromEntries(datos.entries());
+        console.log(datosEnBruto);
+        
+        
+        if (modo=="soloci") {
+            //console.log("solo CI detectado");
+            datosEnBruto.nombre = "";
+            datosEnBruto.fecha_nac = "";
+            datosEnBruto.email = "";
+            //datosJSON["ci"] = formulario["ci"].value;
+            datosEnBruto.contrasenia = "";
+        }
+        else{
+            hash_2 = sha256(sal+datosJSON["contrasenia"]);
+            
+            datosEnBruto.hash_2 = hash_2;
+        }
+        
+        
+        
+        datosEnBruto.nombre = "modificado";
+        let datosJSON = JSON.stringify(datosEnBruto);
+        
+
+        
+        console.log("datos");
+        console.log(datosJSON);
+        const respuesta = await fetch("index.php",
+            {
+                method:"POST",
+                headers: {
+			        "Content-Type": "application/json",
+			        "Accept": "application/json"
+		        },
+                body: datosJSON
+            }
+        );
+        
+    
+	    if (!respuesta.ok) {
+		    const errorMessage = await response.text();
+		    throw new Error(errorMessage);
+	    }
+
+	return respuesta.json();
+    }
+
+</script>
+</html>
