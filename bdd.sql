@@ -1,5 +1,6 @@
 
 drop schema if exists registro;
+create schema registro;
 use registro;
 CREATE TABLE `usuario` (
   `nombre` varchar(12) NOT NULL DEFAULT '...',
@@ -12,4 +13,4 @@ CREATE TABLE `usuario` (
   `marcaTiempo` bigint DEFAULT NULL,
   PRIMARY KEY (`ci`),
   UNIQUE KEY `ci` (`ci`)
-)
+);
