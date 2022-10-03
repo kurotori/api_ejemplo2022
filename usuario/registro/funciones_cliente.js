@@ -29,16 +29,33 @@ async function enviarFormulario() {
 
         const respuesta = await prepararDatos(formDatos,modo);
         
+        //Auxiliares
         console.log("llegó");
         console.log(respuesta);
 
         //Si la respuesta contiene una sal, hasheamos la contraseña
         //y enviamos todos los datos
         if (respuesta.Respuesta.mensaje=="sal") {
+            //Auxiliar
             console.log("hay sal");
+            
+            //Obtenemos la sal (clave pública) de los datos recibidos
             const sal = respuesta.Respuesta.datos;
+            
+            //Auxiliar
             console.log("Sal:"+sal);
 
+            //Encriptamos la contraseña con la clave pública y re-enviamos
+            const respuesta2 = await prepararDatos(formDatos,"");
+            
+            //Evaluamos si el servidor nos devuelve un error
+            if (respuesta2.Respuesta.estado == "ERROR") {
+                alert(respuesta2.Respuesta.estado);
+                alert(respuesta2.Respuesta.mensaje);
+            }
+            else{
+                alert("Registro exitoso");
+            }
             
         } else {
             console.log(respuesta.Respuesta.estado);
@@ -66,25 +83,34 @@ async function prepararDatos(datos, modo) {
     console.log(datosEnBruto);
     
     
+    //Extraigo la contraseña en una variable auxiliar y la quito de los datos a enviarse
+    const contrasenia = datosEnBruto.contrasenia;
+    datosEnBruto.contrasenia = "";
+    
     if (modo=="soloci") {
        //Si el modo es "soloci", se borra la información de todos los otros datos del usuario,
        // dejando solamente el dato "CI"
         datosEnBruto.nombre = "";
         datosEnBruto.fecha_nac = "";
         datosEnBruto.email = "";
-        datosEnBruto.contrasenia = "";
+        
+        datosEnBruto.hash = "";
     }
     else{
         //Si el modo no es "soloci", se mantiene la información de todos los datos, 
-        //y generamos y agregamos el hash_2
-        hash_2 = sha256(sal+datosJSON["contrasenia"]);
+        //y generamos el hasheo de la contraseña, y agregamos el hash_2 a los datos
+        console.log("hasheando contraseña");
+        const hash_2 = await sha256(sal+contrasenia);
         
-        datosEnBruto.hash_2 = hash_2;
+        console.log("hash_2");
+        console.log(hash_2);
+        
+        datosEnBruto.hash = hash_2;
     }
     
     
     //Auxiliar
-    datosEnBruto.nombre = "modificado";
+    //datosEnBruto.nombre = "modificado";
 
     //Pasamos los datos en bruto del formulario a formato JSON
     let datosJSON = JSON.stringify(datosEnBruto);

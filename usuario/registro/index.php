@@ -10,18 +10,21 @@
 
     //Esta respuesta será la que devolveremos al usuario
     $respuesta = new Respuesta();
+    
+    //Creamos un objeto para guardar los datos del usuario
     $usuario = new Usuario();
 
-    //Cargamos los datos del usuario en un 
+    //Cargamos los datos del usuario en el objeto
     $usuario->nombre = $datos_usuario->nombre;
     $usuario->ci = $datos_usuario->ci;
     $usuario->fecha_nac = $datos_usuario->fecha_nac;
     $usuario->email = $datos_usuario->email;
     $usuario->hash = $datos_usuario->hash;
     
-    //Comienzo del registro: se recibe una solicitud sin hash
+    //Comienzo del registro: se recibe una solicitud SIN hash
     if( empty( $usuario->hash ) ){
-        
+        sleep(1);
+
         //Se chequea si existe el usuario en el sistema
         if ( usuarioExiste($usuario->ci) ) {
             
@@ -29,7 +32,7 @@
             $respuesta->mensaje = "Este usuario ya está registrado";
         } 
         else {
-          //Si no existe se procede a generar el registro intermedio  
+          //Si el usuario NO EXISTE se procede a generar el registro intermedio  
             $marcaTiempo = time();
             $sal = crearSal();
                 //El valor hash_1 es llamado 'clave pública', ya que se envía
@@ -40,6 +43,7 @@
             //Se realiza el registro intermedio
             $intermedio = registroIntermedio($usuario);
 
+            //Si NO hubo errores en el proceso, se transmite el valor de la clave pública al cliente
             if (strstr($intermedio->estado,"OK")) {
                 $respuesta->estado = "OK";
                 $respuesta->mensaje = "sal";
@@ -53,15 +57,34 @@
         }
     }
     else{
+        //Si la solicitud CONTIENE un hash, se procede a completar su registro
+
+        //Creamos una marca de tiempo y una sal nueva
         $marcaTiempo = time();
         $sal = crearSal();
+
+        //Creamos el hash_2, la clave privada, con el hasheo provisto desde el cliente
         $hash_2 = hash_hmac("sha256", $marcaTiempo.$usuario->hash, $sal);
         
+        //Agregamos los datos al objeto Usuario
         $usuario->sal = $sal;
         $usuario->marcaTiempo = $marcaTiempo;
         $usuario->hash_2 = $hash_2;
         
-        registrarUsuario($usuario);
+        //Completamos el registro del usuario
+        $registroFinal = registrarUsuario($usuario);
+
+        //Chequeamos la presencia de errores y enviamos el resultado al cliente 
+        if ( strstr($registroFinal->estado,"OK") ) {
+            $respuesta->estado = "OK";
+            $respuesta->mensaje = $registroFinal->mensaje; 
+        } else {
+            $respuesta->estado = $registroFinal->estado;;
+            $respuesta->mensaje = $registroFinal->mensaje;
+        }
+        
+
+        
 
     }
 
@@ -110,7 +133,13 @@ function registroIntermedio(Usuario $usuario){
     return $resultado;
 }
 
-    function registrarUsuario(Usuario $usuario){
+/**
+ * Permite completar el registro de un usuario en el sistema
+ *
+ * @param Usuario $usuario
+ * @return void
+ */
+function registrarUsuario(Usuario $usuario){
         $resultado = new Respuesta(); //Modificado
         $bdd = CrearConexion();
         
@@ -151,6 +180,12 @@ function registroIntermedio(Usuario $usuario){
     }
     
 
+    /**
+     * Busca cuantos usuarios registrados bajo una determinada CI existen en el sistema.
+     *
+     * @param [type] $ci
+     * @return void
+     */
     function usuarioExiste($ci){
         $resultado = "";
         $bdd = CrearConexion();
@@ -158,9 +193,10 @@ function registroIntermedio(Usuario $usuario){
         if ( strstr($bdd->estado,"OK") ) {
             
             $conexion = $bdd->conexion;
-            $consulta = "SELECT count(hash_2) as 'conteo' from usuario
+            //Hacemos un conteo sobre el hash_2, ya que eso nos indicará un usuario con registro completo 
+            $consulta = "SELECT count(hash_2) as 'conteo' from usuario where ci = ?";
 
-
+            $termino = $ci;
             $sentencia = $conexion->prepare($consulta);
             $sentencia->bind_param("i",$termino);
             $sentencia->execute();
@@ -181,6 +217,11 @@ function registroIntermedio(Usuario $usuario){
         return $resultado;
     }
 
+    /**
+     * Permite crear una sal para usarse en la creación de claves públicas y privadas
+     *
+     * @return sal secuencia alfanumérica
+     */
     function crearSal(){
         $sal = "";
         $alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&()";
