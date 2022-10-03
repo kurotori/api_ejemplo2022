@@ -70,10 +70,8 @@ $json = TransformarEnJSON($respuesta);
 MostrarJSON($json); 
 
 
-
-
 /**
- * Permite genere un registro inicial del usuario y el hash_1, 
+ * Permite generar un registro inicial del usuario y el hash_1, 
  * que será la clave pública
  */
 function registroIntermedio(Usuario $usuario){
@@ -102,7 +100,7 @@ function registroIntermedio(Usuario $usuario){
             $resultado->datos = $sentencia->error;
         }
         $sentencia->close();
-        
+        $conexion->close();
     }
     else{
         $resultado->estado = "ERROR";
@@ -160,9 +158,9 @@ function registroIntermedio(Usuario $usuario){
         if ( strstr($bdd->estado,"OK") ) {
             
             $conexion = $bdd->conexion;
-            $consulta = "SELECT count(*) as 'conteo' from usuario
-                        where ci=?";
-            $termino = $ci;
+            $consulta = "SELECT count(hash_2) as 'conteo' from usuario
+
+
             $sentencia = $conexion->prepare($consulta);
             $sentencia->bind_param("i",$termino);
             $sentencia->execute();
