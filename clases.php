@@ -15,4 +15,9 @@
         public $sal = "";
     }
 
+    class Sesion{
+        public $id = "";
+        public $inicio = "";
+        public $estado = "";
+    }
 ?>

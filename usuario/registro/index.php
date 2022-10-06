@@ -81,6 +81,7 @@
         } else {
             $respuesta->estado = $registroFinal->estado;;
             $respuesta->mensaje = $registroFinal->mensaje;
+            $respuesta->datos = $registroFinal->datos;
         }
         
 
@@ -169,6 +170,7 @@ function registrarUsuario(Usuario $usuario){
             else{
                 $resultado->estado = "ERROR";
                 $resultado->mensaje = "No fue posible realizar el registro def.";
+                $resultado->datos = $sentencia->error;
             }
             $sentencia->close();
         }
@@ -224,7 +226,7 @@ function registrarUsuario(Usuario $usuario){
      */
     function crearSal(){
         $sal = "";
-        $alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&()";
+        $alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!#$%&()";
         for ($num=0; $num < 100; $num++) { 
             $numero = random_int(0, strlen($alfabeto)-1 );
             $letra = $alfabeto[$numero];
