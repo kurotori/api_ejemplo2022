@@ -10,7 +10,12 @@ const btn_buscar = document.getElementById("boton_buscar");
 *   ese espacio pronto para los resultados
 */  
 limpiarResultados();
+//NOTA: El resto de la ejecución sucede al dar click en el botón de la página
 
+
+/**
+ * FUNCIONES
+ */
 
 /**
  * Permite limpiar la sección de resultados
