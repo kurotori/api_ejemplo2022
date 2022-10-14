@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+    <div id="encabezado">
+        <h1>Buscar Usuarios</h1>
+        <label for="nombre_usuario">Usuario:</label>
+        <input type="text" id="nombre_usuario">
+        <button onclick="enviarSolicitud()" id="boton_buscar">Buscar</button>
+    </div>
+    <div id="resultados">
+        <h2>Usuarios:</h2>
+        <div id="contenido">
+            <div class="resultado">
+            <div class="encabezado">
+                <h3 class="nombreU">usuario</h3>
+            </div>
+            <div class="datos">
+                <table class="tb_datos">
+                    <tr>
+                        <td class="dato">dato</td>
+                        <td class="info">info</td>
+                    </tr>
+                    <tr>
+                        <td class="dato">dato</td>
+                        <td class="info">info</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        </div>
+        
+
+    </div>
+</body>
+<script src="funciones.js"></script>
+</html>

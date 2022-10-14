@@ -20,4 +20,11 @@
         public $inicio = "";
         public $estado = "";
     }
+
+    class ClavesUsuario{
+        public $sal = "";
+        public $marcaTiempo = "";
+        public $clavePublica = "";
+        public $clavePrivada = "";
+    }
 ?>

@@ -3,18 +3,18 @@
     include_once("../../funciones.php");
     include_once("../../basededatos.php");
 
-    if ( ! empty($_GET['nombre']) 
-        and 
-        isset($_GET['nombre'])
-        ) 
-        {
-        $nombre = $_GET['nombre'];
-        
-        $respuesta = buscarUsuario($nombre);
+    $datos = file_get_contents('php://input');
+    $datos_usuario = json_decode($datos);
 
-        $json = TransformarEnJSON($respuesta);
-        MostrarJSON($json); 
-    }
+    $nombre = $datos_usuario->nombre;
+    
+    sleep(1);
+
+    $respuesta = buscarUsuario($nombre);
+
+    $json = TransformarEnJSON($respuesta);
+    MostrarJSON($json); 
+    
 
     function buscarUsuario($nombre){
         $bdd = CrearConexion();
@@ -49,7 +49,7 @@
                 }
 
             } else {
-                $respuesta->mensaje = "No hubieron resultado";
+                $respuesta->mensaje = "No hubieron resultados";
             }
 
             $sentencia->close();
